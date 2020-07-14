@@ -1,0 +1,53 @@
+html, body {
+  width: 520px;
+}
+
+body {
+  /*border: 1px solid black;*/
+  font-family: 'Roboto';
+  font-size: 12px;
+  padding: 5px;
+}
+
+#popup-content {
+  width: 95%;
+}
+
+label {
+  width: 60px;
+  padding: 3px;
+  display: inline-block;
+}
+
+input[type=text], select, textarea {
+  padding: 2px;
+  /*
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+  */
+}
+
+input[type=text], textarea {
+  width: 412px;
+}
+
+select {
+  width: 420px;
+}
+
+button {
+  margin: 5px;
+}
+
+button #delete {
+  display: none;
+}
+
+#popup-content div {
+  margin: 2px 0;
+}
+
+.hidden {
+  display: none;
+}

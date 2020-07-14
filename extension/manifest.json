@@ -1,0 +1,30 @@
+{
+  "manifest_version": 2,
+  "name": "Bookmark Manager",
+  "short_name":"bkm_org_ext",
+  "version": "1.0",
+  "description": "A bookmark manager for bkm-org",
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "bkm_org_ext@example.org",
+      "strict_min_version": "50.0"
+    }
+  },
+
+  "permissions": [
+    "bookmarks",
+    "tabs",
+    "nativeMessaging"
+  ],
+
+  "browser_action": {
+    "default_icon": "icons/bookmark_border-black-48dp.svg",
+    "default_title": "Bookmark this",
+    "default_popup": "popup/bookmark.html"
+  },
+
+  "background": {
+    "scripts": [ "background.chrome.js" ]
+  }
+}
