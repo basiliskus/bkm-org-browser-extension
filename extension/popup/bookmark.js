@@ -5,6 +5,7 @@ const tagsInput = document.getElementById('tags');
 const submitButton = document.getElementById('submit');
 const deleteButton = document.getElementById('delete');
 const importButton = document.getElementById('import');
+const userMessageSection = document.getElementById('user-message');
 
 
 /*async*/ function setCurrentCollection() {
@@ -55,6 +56,11 @@ function populateBookmarkFields(page) {
     submitButton.value = "add";
     deleteButton.style.display = "none";
   }
+}
+
+function displayUserMessage(message) {
+  userMessageSection.innerHTML = message;
+  userMessageSection.classList.remove('hidden');
 }
 
 
