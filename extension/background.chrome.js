@@ -50,20 +50,12 @@ function addBookmark(url, title, created, tags, cats) {
 
 function deleteBookmark(url) {
   console.log("Deleting url: " + url);
-  // chrome.bookmarks.remove(bid);
   port.postMessage({ command: 'delete', url: url });
   deactivateIcon(currentTab.id);
 }
 
 function updateBookmark(url, title, tags) {
   console.log("Updating url: " + url);
-  // chrome.bookmarks.search({ url: url }, (bookmarks) => {
-  //     bookmark = bookmarks[0];
-  //     if (title) {
-  //       bookmark.title = title;
-  //     }
-  //   }
-  // );
   port.postMessage({ command: 'update', url: url, title: title, tags: tags });
 }
 
@@ -81,7 +73,6 @@ function importBrowserBookmarks() {
 
   function traverse_nodes(node, level, cats) {
     if (node.type === 'bookmark' && isSupportedProtocol(node.url)) {
-      // port.postMessage({ command: 'add', url: node.url, title: node.title, created: node.dateAdded, categories: cats });
       addBookmark(node.url, node.title, node.dateAdded, '', cats)
     }
     if (node.type === 'folder') {
@@ -110,66 +101,14 @@ function importBrowserBookmarks() {
 }
 
 /*
- * Updates the browserAction icon to reflect whether the current page
- * is already bookmarked.
- */
-// function updateIcon() {
-//   console.log("running updateIcon")
-//   chrome.browserAction.setIcon({
-//     path: currentBookmark ?
-//       "icons/bookmark-black-48dp.svg" :
-//       "icons/bookmark_border-black-48dp.svg",
-//     tabId: currentTab.id
-//   });
-//   chrome.browserAction.setTitle({
-//     // Screen readers can see the title
-//     title: currentBookmark ? 'Unbookmark it!' : 'Bookmark it!',
-//     tabId: currentTab.id
-//   });
-// }
-
-/*
- * Add or remove the bookmark on the current page.
- */
-// function toggleBookmark() {
-
-//   if (currentBookmark) {
-//     chrome.bookmarks.remove(currentBookmark.id);
-//     console.log("Deleting url: " + currentTab.url);
-//     port.postMessage({ command: 'del', url: currentTab.url, title: currentTab.title });
-//   } else {
-//     chrome.bookmarks.create({title: currentTab.title, url: currentTab.url});
-//     console.log("Adding url: " + currentTab.url);
-//     port.postMessage({ command: 'add', url: currentTab.url, title: currentTab.title, created: Date.now() });
-//   }
-//   port.postMessage({ command: 'save' });
-// }
-
-// chrome.browserAction.onClicked.addListener(toggleBookmark);
-
-// chrome.browserAction.onClicked.addListener(() => {
-//   browser.tabs.query({
-//     currentWindow: true,
-//     active: true
-//   }).then(sendMessageToTabs).catch(onError);
-// });
-
-/*
  * Switches currentTab and currentBookmark to reflect the currently active tab
  */
 function updateActiveTab(tabs) {
-  // console.log("running updateActiveTab")
-
-  // function updateCurrentBookmark(bookmarks) {
-  //   currentBookmark = bookmarks[0];
-  //   updateIcon();
-  // }
 
   function updateTab(tabs) {
     if (tabs[0]) {
       currentTab = tabs[0];
       if (isSupportedProtocol(currentTab.url)) {
-          // chrome.bookmarks.search({ url: currentTab.url }, updateCurrentBookmark);
           bookmark = bookmarks.find(b => b.url === currentTab.url);
           if (bookmark) {
             currentBookmark = bookmark;
@@ -246,15 +185,6 @@ loadBookmarks();
 console.log("getting catalog...");
 port.postMessage({ command: 'get-catalog' });
 
-// console.log("importing bookmarks...");
-// importBrowserBookmarks();
-
-
-// listen for bookmarks being created
-// chrome.bookmarks.onCreated.addListener(updateActiveTab);
-
-// listen for bookmarks being removed
-// chrome.bookmarks.onRemoved.addListener(updateActiveTab);
 
 // listen to tab URL changes
 chrome.tabs.onUpdated.addListener(updateActiveTab);
