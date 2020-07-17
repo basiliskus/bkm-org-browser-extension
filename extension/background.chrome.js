@@ -2,16 +2,17 @@ var currentTab;
 var currentBookmark;
 var bookmarks;
 var catalog;
+var jsport;
 
-var port = chrome.runtime.connectNative("com.basiliskus.bkm_org_ext");
+var pyport = chrome.runtime.connectNative("com.basiliskus.bkm_org_ext");
 
 
-function getCatalog() {
-  return catalog;
+function loadCatalog() {
+  pyport.postMessage({ command: "get-catalog" });
 }
 
 function loadBookmarks() {
-  port.postMessage({ command: 'get-collection-bookmarks' });
+  pyport.postMessage({ command: "get-bookmarks" });
 }
 
 function getCurrentBookmark() {
@@ -37,35 +38,40 @@ function deactivateIcon(tabid) {
 }
 
 function addBookmark(url, title, created, tags, cats) {
-  console.log("Adding url: " + url);
+  console.log("[background] Adding url: " + url);
   // chrome.bookmarks.create({title: title, url: url});
   // created=Date.now();
-  message = { command: 'add', url: url, title: title, tags: tags, created: created };
+  message = { command: 'add-bookmark', url: url, title: title, tags: tags, created: created };
   if (cats) {
     message["categories"] = cats;
   }
-  port.postMessage(message);
+  pyport.postMessage(message);
+}
+
+function addCurrentBookmark(url, title, created, tags) {
+  addBookmark(url, title, created, tags, '');
   activateIcon(currentTab.id);
 }
 
 function deleteBookmark(url) {
-  console.log("Deleting url: " + url);
-  port.postMessage({ command: 'delete', url: url });
+  console.log("[background] Deleting url: " + url);
+  pyport.postMessage({ command: 'delete-bookmark', url: url });
   deactivateIcon(currentTab.id);
 }
 
 function updateBookmark(url, title, tags) {
-  console.log("Updating url: " + url);
-  port.postMessage({ command: 'update', url: url, title: title, tags: tags });
+  console.log("[background] Updating url: " + url);
+  pyport.postMessage({ command: 'update-bookmark', url: url, title: title, tags: tags });
 }
 
 function saveCurrentCollection() {
-  port.postMessage({ command: 'save' });
+  pyport.postMessage({ command: 'save-collection' });
   loadBookmarks();
 }
 
 function changeCurrentCollection(name) {
-  port.postMessage({ command: 'set-current-collection', name: name });
+  pyport.postMessage({ command: 'set-current-collection', name: name });
+  loadCatalog();
   loadBookmarks();
 }
 
@@ -95,7 +101,6 @@ function importBrowserBookmarks() {
   chrome.bookmarks.getTree(
     function(bookmarkItems) {
       traverse_nodes(bookmarkItems[0], 0, []);
-      // port.postMessage({ command: 'save' });
       saveCurrentCollection();
   });
 }
@@ -104,19 +109,27 @@ function importBrowserBookmarks() {
  * Switches currentTab and currentBookmark to reflect the currently active tab
  */
 function updateActiveTab(tabs) {
+  // console.log("updateActiveTab");
 
   function updateTab(tabs) {
+    // console.log("updateTab");
     if (tabs[0]) {
+      console.log("[background] setting currentTab");
       currentTab = tabs[0];
       if (isSupportedProtocol(currentTab.url)) {
           bookmark = bookmarks.find(b => b.url === currentTab.url);
           if (bookmark) {
+            console.log("[background] setting bookmark (found)");
             currentBookmark = bookmark;
             activateIcon(currentTab.id);
           } else {
+            console.log("[background] setting bookmark (not found)");
             currentBookmark = null;
             // console.log(`Didnt find bookmark for: '${currentTab.url}'`)
             deactivateIcon(currentTab.id);
+          }
+          if (jsport) {
+            jsport.postMessage({command: "set-bookmark", bookmark: getCurrentBookmark()});
           }
           // updateIcon();
       } else {
@@ -129,62 +142,70 @@ function updateActiveTab(tabs) {
 }
 
 
-chrome.runtime.onMessage.addListener((response, sender, sendResponse) => {
-  // console.log("[command received] " + response.command);
-  switch(response.command) {
-    case "set-current-collection":
-      changeCurrentCollection(response.name);
-      sendResponse({message: "changeCurrentCollection"});
-      break;
-    case "add":
-      created = Date.now();
-      addBookmark(response.url, response.title, created, response.tags, '');
-      saveCurrentCollection();
-      sendResponse({message: "addBookmark"});
-      break;
-    case "update":
-      updateBookmark(response.url, response.title, response.tags);
-      saveCurrentCollection();
-      sendResponse({message: "updateBookmark"});
-      break;
-    case "delete":
-      deleteBookmark(response.url);
-      saveCurrentCollection();
-      sendResponse({message: "deleteBookmark"});
-      break;
-    case "import":
-      importBrowserBookmarks();
-      saveCurrentCollection();
-      sendResponse({message: "importBrowserBookmarks"});
-      break;
-  }
-});
-
-port.onMessage.addListener(response => {
+pyport.onMessage.addListener(response => {
   // console.log("[command received] " + response.command);
   switch(response.command) {
     case "user-message":
-      console.log(response.message);
+      console.log("[background] " + response.message);
       break;
-    case "catalog":
+    case "set-catalog":
+      console.log("[background] setting catalog");
       catalog = response.message;
       break;
-    case "bookmarks":
+    case "set-bookmarks":
+      console.log("[background] setting bookmarks");
       bookmarks = response.message
+      updateActiveTab();
       break;
   }
 });
 
-port.onDisconnect.addListener(() => {
-  console.log("Disconnected!!!!!!!!!!!!!!!!");
+chrome.runtime.onConnect.addListener(port => {
+  jsport = port;
+  jsport.onMessage.addListener(response => {
+    switch(response.command) {
+      case "get-catalog":
+        console.log("[background] get catalog");
+        jsport.postMessage({command: "set-catalog", catalog: catalog});
+        break;
+      case "get-bookmark":
+        console.log("[background] get bookmark");
+        jsport.postMessage({command: "set-bookmark", bookmark: getCurrentBookmark()});
+        break;
+      case "set-current-collection":
+        console.log("connected: set current collection");
+        changeCurrentCollection(response.name);
+        break;
+      case "add-bookmark":
+        console.log("[background] add bookmark");
+        created = Date.now();
+        addCurrentBookmark(response.url, response.title, created, response.tags);
+        saveCurrentCollection();
+        break;
+      case "update-bookmark":
+        console.log("[background] update bookmark");
+        updateBookmark(response.url, response.title, response.tags);
+        saveCurrentCollection();
+        break;
+      case "delete-bookmark":
+        console.log("[background] delete bookmark");
+        deleteBookmark(response.url);
+        saveCurrentCollection();
+        break;
+      case "import-bookmarks":
+        console.log("[background] import bookmarks");
+        importBrowserBookmarks();
+        saveCurrentCollection();
+        break;
+    }
+  });
 });
 
-console.log("loading bookmarks...");
+console.log("[background] loading bookmarks...");
 loadBookmarks();
 
-console.log("getting catalog...");
-port.postMessage({ command: 'get-catalog' });
-
+console.log("[background] getting catalog...");
+loadCatalog();
 
 // listen to tab URL changes
 chrome.tabs.onUpdated.addListener(updateActiveTab);
@@ -196,5 +217,5 @@ chrome.tabs.onActivated.addListener(updateActiveTab);
 chrome.windows.onFocusChanged.addListener(updateActiveTab);
 
 // update when the extension loads initially
-updateActiveTab();
+// updateActiveTab();
 

@@ -7,53 +7,54 @@ const deleteButton = document.getElementById('delete');
 const importButton = document.getElementById('import');
 const userMessageSection = document.getElementById('user-message');
 
+var port = chrome.runtime.connect({name: "bookmark"});
 
-/*async*/ function setCurrentCollection() {
+function setCurrentCollection() {
   let collectionFpath = collectionsDrowdown.options[collectionsDrowdown.selectedIndex].value;
-  let message = { command: "set-current-collection", name: collectionFpath };
-  /*await */chrome.runtime.sendMessage(message, response => {
-    console.log(response.message);
-    chrome.runtime.getBackgroundPage(populateBookmarkFields);
-  });
+  port.postMessage({ command: "set-current-collection", name: collectionFpath });
 }
 
-/*async*/ function saveBookmark() {
+function saveBookmark() {
   let command = submitButton.value;
-  let message = { command: command, url: urlInput.value, title: titleInput.value, tags: tagsInput.value };
-  /*await */chrome.runtime.sendMessage(message);
+  port.postMessage({ command: command, url: urlInput.value, title: titleInput.value, tags: tagsInput.value });
 }
 
-/*async*/ function deleteBookmark() {
-  let message = { command: "delete", url: urlInput.value };
-  /*await */chrome.runtime.sendMessage(message);
+function deleteBookmark() {
+  port.postMessage({ command: "delete-bookmark", url: urlInput.value });
 }
 
 function importBrowserBookmarks() {
-  let message = { command: "import" };
-  chrome.runtime.sendMessage(message);
+  port.postMessage({ command: "import-bookmarks" });
 }
 
-function populateCatalog(page) {
-  console.log('populateCatalog');
-  catalog = page.getCatalog();
+function getCatalog() {
+  port.postMessage({command: "get-catalog"});
+}
+
+function getBookmark() {
+  port.postMessage({command: "get-bookmark"});
+}
+
+function populateCatalog(catalog) {
+  console.log("[popup] populateBookmarkFields")
   for (let collection of catalog) {
     collectionsDrowdown.options.add(new Option(collection.name, collection.filename, collection.default, collection.default))
   }
 }
 
-function populateBookmarkFields(page) {
-  console.log('populateBookmarkFields');
-  bookmark = page.getCurrentBookmark();
+function populateBookmarkFields(bookmark) {
+  console.log("[popup] populateBookmarkFields: " + bookmark.saved)
   urlInput.value = bookmark.url;
   titleInput.value = bookmark.title;
   if (bookmark.saved) {
     tagsInput.value = bookmark.tags;
     submitButton.innerText = "Update bookmark";
-    submitButton.value = "update";
+    submitButton.value = "update-bookmark";
     deleteButton.style.display = "block";
   } else {
+    tagsInput.value = "";
     submitButton.innerText = "Add bookmark";
-    submitButton.value = "add";
+    submitButton.value = "add-bookmark";
     deleteButton.style.display = "none";
   }
 }
@@ -80,8 +81,22 @@ deleteButton.addEventListener('click', () => {
 
 importButton.addEventListener('click', () => {
   importBrowserBookmarks();
-  window.close();
 })
 
-chrome.runtime.getBackgroundPage(populateCatalog);
-chrome.runtime.getBackgroundPage(populateBookmarkFields);
+
+port.onMessage.addListener(response => {
+  switch(response.command) {
+    case "user-message":
+      displayUserMessage(response.message);
+      break;
+    case "set-catalog":
+      populateCatalog(response.catalog);
+      break;
+    case "set-bookmark":
+      populateBookmarkFields(response.bookmark);
+      break;
+  }
+});
+
+getCatalog();
+getBookmark();
