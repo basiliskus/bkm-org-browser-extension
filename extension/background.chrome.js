@@ -126,10 +126,10 @@ function importBrowserBookmarks() {
  * Switches currentTab and currentBookmark to reflect the currently active tab
  */
 function updateActiveTab(tabs) {
-  // console.log("updateActiveTab");
+  // console.log('updateActiveTab');
 
   function updateTab(tabs) {
-    // console.log("updateTab");
+    // console.log('updateTab');
     if (tabs[0]) {
       currentTab = tabs[0];
       console.log('[background] setting currentTab');
@@ -160,10 +160,10 @@ function updateActiveTab(tabs) {
 
 
 pyport.onMessage.addListener(response => {
-  // console.log("[command received] " + response.command);
   switch(response.command) {
-      console.log("[background] " + response.message);
+  // console.log('[command received] ' + response.command);
     case 'user-message':
+      console.log(`[background] ${response.message}`);
       break;
     case 'set-catalog':
       console.log('[background] setting catalog');
