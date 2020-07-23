@@ -131,8 +131,8 @@ function updateActiveTab() {
   function updateTab(tabs) {
     // console.log('updateTab');
     if (tabs[0]) {
-      currentTab = tabs[0];
       console.log('[background] setting currentTab');
+      [currentTab] = tabs;
       if (isSupportedProtocol(currentTab.url)) {
         bookmark = bookmarks.find((b) => b.url === currentTab.url);
         if (bookmark) {
