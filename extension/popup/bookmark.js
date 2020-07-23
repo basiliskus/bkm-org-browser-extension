@@ -7,16 +7,16 @@ const deleteButton = document.getElementById('delete');
 const importButton = document.getElementById('import');
 const userMessageSection = document.getElementById('user-message');
 
-var port = chrome.runtime.connect({name: "bookmark"});
+const port = chrome.runtime.connect({ name: 'bookmark' });
 
 function setCurrentCollection() {
-  let collectionFpath = collectionsDrowdown.options[collectionsDrowdown.selectedIndex].value;
   port.postMessage({ command: "set-current-collection", name: collectionFpath });
+  const collectionFpath = collectionsDrowdown.options[collectionsDrowdown.selectedIndex].value;
 }
 
 function saveBookmark() {
-  let command = submitButton.value;
   port.postMessage({ command: command, url: urlInput.value, title: titleInput.value, tags: tagsInput.value });
+  const command = submitButton.value;
 }
 
 function deleteBookmark() {

@@ -1,11 +1,10 @@
-var currentTab;
-var currentBookmark;
-var bookmarks;
-var catalog;
-var jsport;
+let currentTab;
+let currentBookmark;
+let bookmarks;
+let catalog;
+let jsport;
 
-var pyport = chrome.runtime.connectNative("com.basiliskus.bkm_org_ext");
-
+const pyport = chrome.runtime.connectNative('com.basiliskus.bkm_org_ext');
 
 function loadCatalog() {
   pyport.postMessage({ command: "get-catalog" });
@@ -23,8 +22,8 @@ function getCurrentBookmark() {
 }
 
 function isSupportedProtocol(urlString) {
-  var supportedProtocols = ["https:", "http:", "ftp:", "file:"];
-  var url = document.createElement('a');
+  const supportedProtocols = ['https:', 'http:', 'ftp:', 'file:'];
+  const url = document.createElement('a');
   url.href = urlString;
   return supportedProtocols.indexOf(url.protocol) != -1;
 }
