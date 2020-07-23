@@ -36,7 +36,7 @@ function isSupportedProtocol(urlString) {
   const supportedProtocols = ['https:', 'http:', 'ftp:', 'file:'];
   const url = document.createElement('a');
   url.href = urlString;
-  return supportedProtocols.indexOf(url.protocol) != -1;
+  return supportedProtocols.indexOf(url.protocol) !== -1;
 }
 
 function activateIcon(tabid) {
