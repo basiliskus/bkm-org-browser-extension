@@ -69,7 +69,6 @@ function displayUserMessage(message) {
   userMessageSection.classList.remove('hidden');
 }
 
-
 collectionsDrowdown.addEventListener('change', () => {
   setCurrentCollection();
 });
@@ -77,20 +76,19 @@ collectionsDrowdown.addEventListener('change', () => {
 submitButton.addEventListener('click', () => {
   saveBookmark();
   window.close();
-})
+});
 
 deleteButton.addEventListener('click', () => {
   deleteBookmark();
   window.close();
-})
+});
 
 importButton.addEventListener('click', () => {
   importBrowserBookmarks();
-})
+});
 
-
-  switch(response.command) {
 port.onMessage.addListener((response) => {
+  switch (response.command) {
     case 'user-message':
       displayUserMessage(response.message);
       break;

@@ -158,10 +158,9 @@ function updateActiveTab() {
   chrome.tabs.query({ active: true, currentWindow: true }, updateTab);
 }
 
-
-  switch(response.command) {
 pyport.onMessage.addListener((response) => {
   // console.log('[command received] ' + response.command);
+  switch (response.command) {
     case 'user-message':
       console.log(`[background] ${response.message}`);
       break;
@@ -179,8 +178,8 @@ pyport.onMessage.addListener((response) => {
 
 chrome.runtime.onConnect.addListener((port) => {
   jsport = port;
-    switch(response.command) {
   jsport.onMessage.addListener((response) => {
+    switch (response.command) {
       case 'get-catalog':
         console.log('[background] get catalog');
         jsport.postMessage({ command: 'set-catalog', catalog });
@@ -235,4 +234,3 @@ chrome.windows.onFocusChanged.addListener(updateActiveTab);
 
 // update when the extension loads initially
 // updateActiveTab();
-
