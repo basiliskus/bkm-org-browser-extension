@@ -125,7 +125,7 @@ function importBrowserBookmarks() {
 /*
  * Switches currentTab and currentBookmark to reflect the currently active tab
  */
-function updateActiveTab(tabs) {
+function updateActiveTab() {
   // console.log('updateActiveTab');
 
   function updateTab(tabs) {
