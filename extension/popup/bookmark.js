@@ -98,6 +98,7 @@ port.onMessage.addListener((response) => {
     case 'set-bookmark':
       populateBookmarkFields(response.bookmark);
       break;
+    default:
   }
 });
 

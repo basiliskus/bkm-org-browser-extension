@@ -173,6 +173,8 @@ pyport.onMessage.addListener((response) => {
       bookmarks = response.message;
       updateActiveTab();
       break;
+    default:
+      break;
   }
 });
 
@@ -212,6 +214,8 @@ chrome.runtime.onConnect.addListener((port) => {
         console.log('[background] import bookmarks');
         importBrowserBookmarks();
         saveCurrentCollection();
+        break;
+      default:
         break;
     }
   });
