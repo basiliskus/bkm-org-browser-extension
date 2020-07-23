@@ -1,0 +1,11 @@
+__pycache__/
+
+*.ini
+*.bat
+*.reg
+*.zip
+
+app/*.json
+check_config_win.py
+extension/background.firefox.js
+extension/background.original.js
