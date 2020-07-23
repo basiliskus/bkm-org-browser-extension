@@ -134,21 +134,21 @@ function updateActiveTab(tabs) {
       currentTab = tabs[0];
       console.log('[background] setting currentTab');
       if (isSupportedProtocol(currentTab.url)) {
-          bookmark = bookmarks.find(b => b.url === currentTab.url);
-          if (bookmark) {
-            console.log("[background] setting bookmark (found)");
-            currentBookmark = bookmark;
-            activateIcon(currentTab.id);
-          } else {
-            console.log("[background] setting bookmark (not found)");
-            currentBookmark = null;
-            // console.log(`Didnt find bookmark for: '${currentTab.url}'`)
-            deactivateIcon(currentTab.id);
-          }
-          if (jsport) {
-            jsport.postMessage({command: "set-bookmark", bookmark: getCurrentBookmark()});
-          }
-          // updateIcon();
+        bookmark = bookmarks.find((b) => b.url === currentTab.url);
+        if (bookmark) {
+          console.log('[background] setting bookmark (found)');
+          currentBookmark = bookmark;
+          activateIcon(currentTab.id);
+        } else {
+          console.log('[background] setting bookmark (not found)');
+          currentBookmark = null;
+          // console.log(`Didnt find bookmark for: '${currentTab.url}'`)
+          deactivateIcon(currentTab.id);
+        }
+        if (jsport) {
+          jsport.postMessage({ command: 'set-bookmark', bookmark: getCurrentBookmark() });
+        }
+        // updateIcon();
       } else {
         // console.log(`Bookmark it! does not support the '${currentTab.url}' URL.`)
       }
