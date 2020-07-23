@@ -159,8 +159,8 @@ function updateActiveTab() {
 }
 
 
-pyport.onMessage.addListener(response => {
   switch(response.command) {
+pyport.onMessage.addListener((response) => {
   // console.log('[command received] ' + response.command);
     case 'user-message':
       console.log(`[background] ${response.message}`);
@@ -177,10 +177,10 @@ pyport.onMessage.addListener(response => {
   }
 });
 
-chrome.runtime.onConnect.addListener(port => {
+chrome.runtime.onConnect.addListener((port) => {
   jsport = port;
-  jsport.onMessage.addListener(response => {
     switch(response.command) {
+  jsport.onMessage.addListener((response) => {
       case 'get-catalog':
         console.log('[background] get catalog');
         jsport.postMessage({ command: 'set-catalog', catalog });

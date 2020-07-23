@@ -89,8 +89,8 @@ importButton.addEventListener('click', () => {
 })
 
 
-port.onMessage.addListener(response => {
   switch(response.command) {
+port.onMessage.addListener((response) => {
     case 'user-message':
       displayUserMessage(response.message);
       break;
