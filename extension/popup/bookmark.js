@@ -41,10 +41,12 @@ function getBookmark() {
 }
 
 function populateCatalog(catalog) {
-  for (let collection of catalog) {
-    collectionsDrowdown.options.add(new Option(collection.name, collection.filename, collection.default, collection.default))
-  }
   console.log('[popup] populateBookmarkFields');
+  catalog.forEach(
+    (collection) => collectionsDrowdown.options.add(
+      new Option(collection.name, collection.filename, collection.default, collection.default)
+    )
+  );
 }
 
 function populateBookmarkFields(bookmark) {
