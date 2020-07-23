@@ -97,33 +97,29 @@ function changeCurrentCollection(name) {
 }
 
 function importBrowserBookmarks() {
-
-  function traverse_nodes(node, level, cats) {
+  function traverseNodes(node, level, cats) {
     if (node.type === 'bookmark' && isSupportedProtocol(node.url)) {
-      addBookmark(node.url, node.title, node.dateAdded, '', cats)
+      addBookmark(node.url, node.title, node.dateAdded, '', cats);
     }
     if (node.type === 'folder') {
-      cats = cats.slice(0, level)
+      cats = cats.slice(0, level);
       if (cats.length > level) {
-        cats[level] = node.title
-      } else if (node.title != '') {
-        cats.push(node.title)
+        cats[level] = node.title;
+      } else if (node.title !== '') {
+        cats.push(node.title);
       }
-      level++;
+      level += 1;
     }
-    if (node.children) {
-      for (child of node.children) {
-        traverse_nodes(child, level, cats);
-      }
-    }
-    level--;
+    node.children.forEach((child) => traverseNodes(child, level, cats));
+    level -= 1;
   }
 
   chrome.bookmarks.getTree(
-    function(bookmarkItems) {
-      traverse_nodes(bookmarkItems[0], 0, []);
+    (bookmarkItems) => {
+      traverseNodes(bookmarkItems[0], 0, []);
       saveCurrentCollection();
-  });
+    }
+  );
 }
 
 /*
